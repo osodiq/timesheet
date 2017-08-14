@@ -1,22 +1,21 @@
 <?php 
     require_once 'config.php';
     //Employee EID FORM process
-    if (isset($_POST['signin'])) {
-        $eid = $_POST['eid'];
-        $date = date("D,F j, Y");
-        $timein = date("g:i a"); 
-        $timeout = date("g:i a");
-        $sql = $conn->query("INSERT INTO time(eid,date,timein,timeout)VALUES('$eid','$date','$timein','')");
-    }
-    if (isset($_POST['signout'])) {
-        $eid = $_POST['eid'];
-        $date = date("D,F j, Y");
-        $timein = date("g:i a"); 
-        $timeout = date("g:i a");
-        $sqltwo = $conn->query("UPDATE time SET timeout = '$timeout' WHERE eid = '$eid'");
-    }
-    //LOGIN FORM PROCESS
 
+    //LOGIN FORM PROCESS
+    if(isset($_POST['login'])){
+        $user = $_POST['username'];
+        $pass = $_POST['password'];
+        $login = $conn->query("SELECT * FROM user WHERE username = '$user' AND password = '$pass'");
+        if (!$login) {
+            echo "Invalid login Credentials";
+        }else{
+            session_start();
+            $_SESSION['login'] = $user;
+            header('LOCATION:admin/admin.php');
+        }
+
+    }
 ?>
 
 <!Doctype html>
@@ -35,7 +34,32 @@
 	<body>
     <div class="container">
         <div class="col-md-8"> 
-            <h3 class="text-center">Employee Sign In</h3>
+            <h3 class="text-center">Employee Sign In</h3> 
+         <?php    if (isset($_POST['signin'])) {
+                    date_default_timezone_set('Africa/Lagos');
+                    $eid = $_POST['eid'];
+                    $date = date("D,F j, Y");
+                    $timein = date("g:i a"); 
+                    $timeout = date("g:i a");
+                    $sql = $conn->query("INSERT INTO time(eid,date,timein,timeout)VALUES('$eid','$date','$timein','')");
+                    $namesql = $conn->query("SELECT * FROM employeedetail WHERE eid ='$eid'");
+                    while($row = mysqli_fetch_assoc($namesql)){
+                    $msg1 = "Welcome .'$row[name]'. you sign in at .'$timein.' Have a nice day "; 
+                    
+                    echo '<ul class="bg-danger"><li class="text-success">'?><?php echo  $msg1; }?>  </li> </ul>
+                    
+                
+               <?php } 
+                        
+        //    /SIgn Out
+
+            if (isset($_POST['signout'])) {
+                date_default_timezone_set('Africa/Lagos');
+                $eid = $_POST['eid'];
+                $timeout = date("g:i a");
+                $sqltwo = $conn->query("UPDATE time SET timeout = '$timeout' WHERE eid = '$eid'");
+            }
+    ?>  
             <form class="form-group" action="" method="post">
              <label class=""for="eid">Employee Id<span style="color:red">*</span>:</label>
              <input type="text" id="eid" name="eid" class="form-control" placeholder="Employee Id number"value=""><br><br>
